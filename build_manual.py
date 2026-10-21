@@ -68,10 +68,20 @@ def footer_page_number(section, first_page_blank=True):
 
 
 def page_break(doc):
-    """Break to a new page without starting a new section."""
+    """Break to a new page without starting a new section.
+
+    The break paragraph is made 1pt tall on an exact line, because a full-height
+    empty paragraph at the foot of a page can overflow and produce a blank page
+    before the real content.
+    """
     p = doc.add_paragraph()
-    no_space(p, 0, 0)
-    p.add_run().add_break(WD_BREAK.PAGE)
+    pf = p.paragraph_format
+    pf.space_before = Pt(0)
+    pf.space_after = Pt(0)
+    pf.line_spacing = Pt(1)
+    r = p.add_run()
+    _style(r, 1)
+    r.add_break(WD_BREAK.PAGE)
     return p
 
 

@@ -1,0 +1,3 @@
+nohup: ignoring input
+exp 04: running transformer_demo.py in /workspace/project/runs/04
+exp 04: exit 1, log /workspace/project/captures/exp04.log

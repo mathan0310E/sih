@@ -1,0 +1,28 @@
+{
+  "cover": {
+    "after_college": 0,
+    "after_address": 137,
+    "after_dept_head": 24,
+    "after_dept_name": 38,
+    "after_programme": 34,
+    "after_course": 45,
+    "after_regulation": 24,
+    "after_last_field": 23,
+    "field_gap": 16
+  },
+  "cert": {
+    "before_college": 18,
+    "after_college": 14,
+    "after_address": 16,
+    "after_heading": 50,
+    "after_fields": 6,
+    "field_gap": 19,
+    "after_statement": 63,
+    "after_sig1": 54,
+    "after_submission": 50
+  },
+  "index": {
+    "after_heading": 12,
+    "row_gap": 8
+  }
+}

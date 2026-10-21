@@ -1,0 +1,19 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+embedding matrix shape: (12, 384)
+======================================================================
+Query: beginner course on machine learning
+  0.520  Foundations of machine learning: regression and classification
+  0.374  Introduction to artificial intelligence and intelligent agents
+  0.349  Computer vision and image understanding
+======================================================================
+Query: how do computers store and retrieve data
+  0.442  Operating systems: processes, memory and file systems
+  0.333  Computer networks and the TCP/IP protocol stack
+  0.270  Data structures and algorithm design techniques
+======================================================================
+Query: building websites with frontend and backend code
+  0.472  Web application development with client and server frameworks
+  0.141  Cloud computing and virtualisation fundamentals
+  0.113  Software engineering and agile development practices
+
+Keyword baseline: [(1, 'Foundations of machine learning: regression and classification'), (1, 'Deep learning with convolutional and recurrent networks'), (0, 'Web application development with client and server frameworks')]

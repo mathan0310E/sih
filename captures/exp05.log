@@ -1,0 +1,14 @@
+Selection rate by group:
+group
+A    0.609
+B    0.381
+Name: flag, dtype: float64
+Demographic parity difference = 0.227
+Disparate impact ratio        = 0.626
+Four-fifths rule: REVIEW REQUIRED
+
+After threshold adjustment:
+group
+A    0.383
+B    0.381
+Name: flag_adj, dtype: float64

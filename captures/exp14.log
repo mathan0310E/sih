@@ -1,0 +1,20 @@
+Before mitigation:
+  accuracy 0.758
+  sel_A    0.787
+  tpr_A    0.884
+  sel_B    0.798
+  tpr_B    0.914
+  dpd      0.011
+  di       0.986
+  eod      0.030
+group thresholds: {'A': 0.501, 'B': 0.553}
+
+After mitigation:
+  accuracy 0.765
+  sel_A    0.787
+  tpr_A    0.884
+  sel_B    0.743
+  tpr_B    0.882
+  dpd      0.045
+  di       0.943
+  eod      0.002

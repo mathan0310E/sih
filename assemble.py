@@ -17,6 +17,12 @@ from docx.shared import Pt, Cm
 CENTER = WD_ALIGN_PARAGRAPH.CENTER
 JUST = WD_ALIGN_PARAGRAPH.JUSTIFY
 
+import json
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(_HERE, "spacing.json")) as _f:
+    SPACING = json.load(_f)
+
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 os.makedirs(OUT, exist_ok=True)
 DOCX = os.path.join(OUT, "NM_LAB_MANUAL_GenAI.docx")
@@ -48,39 +54,52 @@ def dot_fill(doc, label, size=12, before=5, after=5, used=0):
 
 
 def cover(doc):
-    P(doc, "", after=2)
-    P(doc, C.COLLEGE["name"], 24, bold=True, align=CENTER, after=2)
-    P(doc, C.COLLEGE["address"], 13, align=CENTER, after=18)
-    P(doc, "DEPARTMENT OF", 14, bold=True, align=CENTER, after=2)
+    """Cover page.  Vertical gaps follow the reference record book: the college
+    block sits near the top, then a large gap before the department block, and
+    the dot-leader fields occupy the lower half."""
+    S = SPACING["cover"]
+    P(doc, "", after=6)
+    P(doc, C.COLLEGE["name"], 24, bold=True, align=CENTER,
+      after=S["after_college"])
+    P(doc, C.COLLEGE["address"], 13, align=CENTER, after=S["after_address"])
+    P(doc, "DEPARTMENT OF", 14, bold=True, align=CENTER, after=S["after_dept_head"])
     P(doc, "ARTIFICIAL INTELLIGENCE AND DATA SCIENCE", 14, bold=True,
-      align=CENTER, after=18)
+      align=CENTER, after=S["after_dept_name"])
     P(doc, "B.Tech. \u2013 ARTIFICIAL INTELLIGENCE AND DATA SCIENCE", 13,
-      align=CENTER, after=16)
-    P(doc, C.COLLEGE["course"], 14, bold=True, align=CENTER, after=10)
-    P(doc, "REGULATION - ____________", 12, align=CENTER, after=16)
-    P(doc, "LABORATORY RECORD", 12, bold=True, align=CENTER, after=20)
+      align=CENTER, after=S["after_programme"])
+    P(doc, C.COLLEGE["course"], 14, bold=True, align=CENTER,
+      after=S["after_course"])
+    P(doc, "REGULATION - ____________", 12, align=CENTER,
+      after=S["after_regulation"])
+    P(doc, "LABORATORY RECORD", 12, bold=True, align=CENTER,
+      after=S["after_last_field"])
 
-    dot_fill(doc, "Name : ", used=7)
-    dot_fill(doc, "Register Number : ", used=18)
-    dot_fill(doc, "Department : ", used=13)
-    dot_fill(doc, "Year / Semester : ", used=18)
-    dot_fill(doc, "Subject : ", used=10)
-    P(doc, "", after=14)
+    gap = S["field_gap"]
+    dot_fill(doc, "Name : ", used=7, after=gap)
+    dot_fill(doc, "Register Number : ", used=18, after=gap)
+    dot_fill(doc, "Department : ", used=13, after=gap)
+    dot_fill(doc, "Year / Semester : ", used=18, after=gap)
+    dot_fill(doc, "Subject : ", used=10, after=gap)
+    P(doc, "", after=10)
     P(doc, "Academic Year : 20______ \u2013 20______", 12, align=CENTER, after=4)
 
 
 # ------------------------------------------------------------ certificate
 def certificate(doc):
-    P(doc, C.COLLEGE["name"], 20, bold=True, align=CENTER, after=2)
-    P(doc, C.COLLEGE["address"], 12, align=CENTER, after=4)
-    P(doc, "CERTIFICATE", 18, bold=True, align=CENTER, after=16)
+    S = SPACING["cert"]
+    P(doc, "", after=S["before_college"])
+    P(doc, C.COLLEGE["name"], 20, bold=True, align=CENTER,
+      after=S["after_college"])
+    P(doc, C.COLLEGE["address"], 12, align=CENTER, after=S["after_address"])
+    P(doc, "CERTIFICATE", 18, bold=True, align=CENTER, after=S["after_heading"])
 
-    dot_fill(doc, "Name : ", used=7)
-    dot_fill(doc, "Department : ", used=13)
-    dot_fill(doc, "Subject : ", used=10)
-    dot_fill(doc, "Year / Semester : ", used=18)
-    dot_fill(doc, "Register No : ", used=14)
-    P(doc, "", after=12)
+    gap = S["field_gap"]
+    dot_fill(doc, "Name : ", used=7, after=gap)
+    dot_fill(doc, "Department : ", used=13, after=gap)
+    dot_fill(doc, "Subject : ", used=10, after=gap)
+    dot_fill(doc, "Year / Semester : ", used=18, after=gap)
+    dot_fill(doc, "Register No : ", used=14, after=gap)
+    P(doc, "", after=S["after_fields"])
 
     rich(doc, [
         ("Certified that this is the bonafide record of practical work done by the "
@@ -90,7 +109,7 @@ def certificate(doc):
         ("In the ", False, False),
         ("Generative AI", True, False),
         (" Laboratory during the year 20______ \u2013 20______.", False, False),
-    ], 12, align=JUST, after=26)
+    ], 12, align=JUST, after=S["after_statement"])
 
     t = doc.add_table(rows=1, cols=2)
     t.autofit = True
@@ -102,10 +121,10 @@ def certificate(doc):
         no_space(q, 16, 2)
         _style(q.add_run(label), 11, bold=True)
 
-    P(doc, "", after=24)
+    P(doc, "", after=S["after_sig1"])
     P(doc, "Submission for the Practical Examination held on "
            ".......................................................",
-      12, after=30)
+      12, after=S["after_submission"])
 
     t2 = doc.add_table(rows=1, cols=2)
     t2.autofit = True

@@ -1,0 +1,3 @@
+nohup: ignoring input
+exp 03: running autoencoder_vae.py in /workspace/project/runs/03
+exp 03: exit 0, log /workspace/project/captures/exp03.log

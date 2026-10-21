@@ -1,0 +1,3 @@
+nohup: ignoring input
+exp 11: running finetune_lora.py in /workspace/project/runs/11
+exp 11: exit 1, log /workspace/project/captures/exp11.log

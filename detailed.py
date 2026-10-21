@@ -704,14 +704,16 @@ D["06"] = [
     },
     {
         "title": "Load the summarisation model",
-        "action": "Create the summarisation pipeline with the t5-small checkpoint. "
-                  "T5 is a text-to-text model, so the task name is written into "
-                  "the input as a prefix.",
+        "action": "Load the t5-small checkpoint with its tokeniser. T5 is a "
+                  "text-to-text model, so the task name is written into the "
+                  "input as a prefix rather than passed to a pipeline.",
         "command": [
-            "summ = pipeline(\"summarization\", model=\"t5-small\")",
+            "summ_tok = AutoTokenizer.from_pretrained(\"t5-small\")",
+            "summ_model = AutoModelForSeq2SeqLM.from_pretrained(\"t5-small\")",
             "document = \"summarize: \" + \" \".join(reviews)",
         ],
-        "observe": "The pipeline is created without error.",
+        "observe": "Both files load without error; the tokeniser downloads a "
+                   "vocabulary file and the model downloads its weights.",
         "note": "The 'summarize: ' prefix is not optional for T5. Without it the "
                 "same model treats the input as a different task and the output "
                 "is not a summary.",
@@ -1297,8 +1299,8 @@ D["11"] = [
                   "maximum length, and select a small subset for the lab. The "
                   "subset keeps the run short while leaving the method unchanged.",
         "command": [
-            "ds = load_dataset(\"glue\", \"sst2\")",
-            "ds = ds.map(enc, batched=True).rename_column(\"label\", \"labels\")",
+            "raw = load_dataset(\"nyu-mll/glue\", \"sst2\")",
+            "ds = raw.map(enc, batched=True).rename_column(\"label\", \"labels\")",
             "train_ds = ds[\"train\"].select(range(2000))",
         ],
         "observe": "A dataset object whose columns are input_ids, attention_mask "
@@ -1660,11 +1662,19 @@ D["13"] = [
     {
         "title": "Generate a caption for an image",
         "action": "Place a sample medical image in the working folder and run the "
-                  "image-to-text pipeline on it.",
+                  "vision-encoder-decoder captioning model on it. The image "
+                  "processor converts the picture into pixel values and the "
+                  "decoder generates the caption tokens.",
         "command": [
-            "captioner = pipeline(\"image-to-text\",",
-            "                     model=\"nlpconnect/vit-gpt2-image-captioning\")",
+            "cap_proc = ViTImageProcessor.from_pretrained(",
+            "    \"nlpconnect/vit-gpt2-image-captioning\")",
+            "cap_model = VisionEncoderDecoderModel.from_pretrained(",
+            "    \"nlpconnect/vit-gpt2-image-captioning\")",
+            "cap_tok = AutoTokenizer.from_pretrained(",
+            "    \"nlpconnect/vit-gpt2-image-captioning\")",
             "image = Image.open(\"sample_medical_image.jpg\").convert(\"RGB\")",
+            "pixels = cap_proc(images=image, return_tensors=\"pt\").pixel_values",
+            "cap_ids = cap_model.generate(pixels, max_new_tokens=32)",
         ],
         "observe": "A short sentence is printed, such as 'a close up of a person's "
                    "eye'.",
