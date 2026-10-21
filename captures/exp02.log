@@ -3,3 +3,6 @@ epoch 01  lossD=0.9238  lossG=1.4191
 epoch 02  lossD=0.4075  lossG=3.5297
 epoch 03  lossD=0.3600  lossG=3.7704
 epoch 04  lossD=0.3078  lossG=4.1573
+epoch 05  lossD=0.4135  lossG=3.4222
+epoch 06  lossD=0.3827  lossG=3.5917
+epoch 07  lossD=0.4025  lossG=3.4808

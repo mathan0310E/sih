@@ -300,6 +300,7 @@ def data_table(doc, header, rows, widths=None, size=10.5, head_fill="D9D9D9"):
         cell_borders(hdr[i])
     for row in rows:
         cells = tbl.add_row().cells
+        _cant_split(tbl.rows[-1])
         for i, val in enumerate(row):
             cells[i].text = ""
             p = cells[i].paragraphs[0]
@@ -314,6 +315,14 @@ def data_table(doc, header, rows, widths=None, size=10.5, head_fill="D9D9D9"):
     if len(rows) > 8:
         _repeat_header(tbl)
     return tbl
+
+
+def _cant_split(row):
+    """Stop a table row from being split across two printed pages."""
+    trPr = row._tr.get_or_add_trPr()
+    for old in trPr.findall(qn("w:cantSplit")):
+        trPr.remove(old)
+    trPr.append(_el("w:cantSplit", **{"w:val": "true"}))
 
 
 def _repeat_header(tbl):
