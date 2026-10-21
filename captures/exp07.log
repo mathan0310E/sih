@@ -1,1 +1,2 @@
-$ /usr/bin/python3.13 -u fashion_cnn_gan.py
+$ /usr/bin/python3.13 exp 07: running fashion_cnn_gan.py in /workspace/project/runs/07
+exp 07: exit 0, log /workspace/project/captures/exp07.log
