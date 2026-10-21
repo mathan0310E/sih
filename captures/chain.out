@@ -1,1 +1,6 @@
 nohup: ignoring input
+exp 02: running gan_mnist.py in /workspace/project/runs/02
+exp 02: TIMEOUT
+Terminated
+exp 11: running finetune_lora.py in /workspace/project/runs/11
+exp 11: TIMEOUT

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 torch.manual_seed(0)
 DEV = "cuda" if torch.cuda.is_available() else "cpu"
-LATENT, BATCH, EPOCHS = 64, 128, 10   # 10 epochs is lab-scale on CPU
+LATENT, BATCH, EPOCHS = 64, 128, 5    # 5 epochs is lab-scale on CPU
 
 # ---- data: scale pixels to [-1, 1] ----
 tf = transforms.Compose([transforms.ToTensor(),

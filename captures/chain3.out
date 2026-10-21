@@ -1,0 +1,3 @@
+nohup: ignoring input
+exp 02: running gan_mnist.py in /workspace/project/runs/02
+exp 02: TIMEOUT

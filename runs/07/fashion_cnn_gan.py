@@ -31,7 +31,7 @@ class CNN(nn.Module):
 cnn = CNN().to(DEV)
 opt = optim.Adam(cnn.parameters(), lr=1e-3)
 crit = nn.CrossEntropyLoss()
-for ep in range(5):
+for ep in range(2):
     cnn.train(); tot = 0.0
     for x, y in trl:
         x, y = x.to(DEV), y.to(DEV)
@@ -72,7 +72,7 @@ G, D = Gen().to(DEV), Disc().to(DEV)
 oG = optim.Adam(G.parameters(), lr=2e-4, betas=(0.5, 0.999))
 oD = optim.Adam(D.parameters(), lr=2e-4, betas=(0.5, 0.999))
 bce = nn.BCELoss()
-for ep in range(8):    # lab-scale: fewer epochs on CPU
+for ep in range(3):    # lab-scale: fewer epochs on CPU
     for x, _ in trl:
         x = x.to(DEV); n = x.size(0)
         one = torch.ones(n, 1, device=DEV)
