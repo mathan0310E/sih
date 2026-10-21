@@ -258,7 +258,17 @@ def data_table(doc, header, rows, widths=None, size=10.5, head_fill="D9D9D9"):
             cell_borders(cells[i])
     if widths:
         _apply_widths(tbl, widths)
+    if len(rows) > 8:
+        _repeat_header(tbl)
     return tbl
+
+
+def _repeat_header(tbl):
+    """Repeat the header row when a long table spans more than one page."""
+    trPr = tbl.rows[0]._tr.get_or_add_trPr()
+    for old in trPr.findall(qn("w:tblHeader")):
+        trPr.remove(old)
+    trPr.append(_el("w:tblHeader", **{"w:val": "true"}))
 
 
 def _fixed_layout(tbl):

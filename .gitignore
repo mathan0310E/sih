@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+# QA / intermediate render artefacts
+output/*.txt
+output/*-*.png
