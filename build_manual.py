@@ -236,7 +236,27 @@ def bullets(doc, items, size=12, indent=0.7, after=2, style="List Bullet"):
 
 
 def numbered(doc, items, size=12, indent=0.85, after=2):
-    return bullets(doc, items, size, indent, after, style="List Number")
+    """Numbered list with explicit numbers.
+
+    The built-in "List Number" style shares one numbering sequence across the
+    document, which made a later experiment's procedure start at 65. Rendering
+    the number in the text restarts at 1 for every list, as a record book needs.
+    """
+    out = []
+    for i, it in enumerate(items, 1):
+        p = doc.add_paragraph()
+        _consume_break(doc, p)
+        no_space(p, 0, after)
+        p.paragraph_format.left_indent = Cm(indent)
+        p.paragraph_format.first_line_indent = Cm(-0.55)
+        p.paragraph_format.line_spacing = 1.15
+        if isinstance(it, str):
+            it = [(it, False, False)]
+        _style(p.add_run(f"{i}. "), size)
+        for text, b, i2 in it:
+            _style(p.add_run(text), size, b, i2)
+        out.append(p)
+    return out
 
 
 def section_head(doc, text, size=13):

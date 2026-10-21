@@ -1,3 +1,6 @@
 $ /usr/bin/python3.13 -u fashion_cnn_gan.py
 epoch 1: loss=0.4692 accuracy=87.41%
 epoch 2: loss=0.3003 accuracy=88.39%
+epoch 3: loss=0.2549 accuracy=90.13%
+epoch 4: loss=0.2252 accuracy=90.53%
+epoch 5: loss=0.1989 accuracy=90.52%
