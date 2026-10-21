@@ -88,6 +88,34 @@ Checked against official sources, not memory:
 - Learning path activity *names* are behind a sign-in wall, so they are not
   quoted anywhere.
 
+## Environment (container resets wipe OS packages)
+The workspace files survive a container reset, but `/usr/bin/python3`,
+`/usr/bin/python3.13`, LibreOffice, poppler and every pip package are lost.
+Run `./setup_env.sh` after a reset. It:
+1. apt-installs `python3-torch`, `python3-torchvision`, `python3-docx`,
+   `python3-numpy/scipy/matplotlib/pil/sklearn/pandas/pytest/sentencepiece/nltk`,
+   `libreoffice-writer`, `poppler-utils`.
+2. `uv pip install --python /usr/bin/python3.13 --target
+   /usr/local/lib/python3.13/dist-packages transformers datasets peft
+   sentence_transformers accelerate google-genai`.
+3. Deletes the `numpy*`, `torch*`, `nvidia*`, `triton*`, `cuda*`,
+   `cusparselt*` wheels that uv drops into that target, because they shadow the
+   Debian builds and make `import torchvision` segfault (same crash signature
+   as `libnuma`/`libucs`).
+
+Notes:
+- Debian Python is `/usr/bin/python3.13` (the path `/usr/bin/python3` is the
+  same). `/usr/local/bin/python3` is a different, package-less interpreter.
+- LibreOffice needs `LD_LIBRARY_PATH=/usr/lib/libreoffice/program` before
+  `soffice --headless --convert-to pdf`, otherwise `libreglo.so` is not found.
+- `CAP_SYS_NICE` is absent, so `ulimit -n 4096` fails in non-interactive shells.
+
+## Figure provenance
+`assemble.py` has a `REAL_FIGURES` map (exp -> (png, caption)). Only figures
+genuinely produced by running a program in `runs/NN/` are inserted; every other
+experiment keeps the "Paste actual experiment screenshot here." placeholder.
+Never add an entry without a real `runs/NN/*.png`.
+
 ## QA loop used
 1. `python3 assemble.py`
 2. LibreOffice -> PDF

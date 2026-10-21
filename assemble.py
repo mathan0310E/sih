@@ -27,6 +27,29 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 os.makedirs(OUT, exist_ok=True)
 DOCX = os.path.join(OUT, "NM_LAB_MANUAL_GenAI.docx")
 SHOTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "shots")
+RUNS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "runs")
+
+# Figures that were genuinely produced by running the experiment programs in
+# this workspace.  Experiment number -> (image path, caption).  Experiments not
+# listed here keep the "paste your own screenshot" placeholder so that no
+# output is ever presented as real when it was not captured.
+REAL_FIGURES = {
+    "03": (os.path.join(RUNS, "03", "vae_samples.png"),
+           "Fig. 3.1: Reconstructions and generated samples produced by the "
+           "VAE (captured from this program's run)."),
+    "04": (os.path.join(RUNS, "04", "attention.png"),
+           "Fig. 4.1: Attention heat map for layer 0, head 0, produced by the "
+           "program (captured from this program's run)."),
+    "12": (os.path.join(RUNS, "12", "embeddings.png"),
+           "Fig. 12.1: Course-title embeddings projected to two dimensions "
+           "using PCA (captured from this program's run)."),
+    "14": (os.path.join(RUNS, "14", "fairness.png"),
+           "Fig. 14.1: Selection rates and the four-fifths rule before and "
+           "after post-processing mitigation (captured from this program's run)."),
+    "15": (os.path.join(RUNS, "15", "monitoring.png"),
+           "Fig. 15.1: Monitoring report showing daily quality and latency "
+           "(captured from this program's run)."),
+}
 
 
 def dotted_line(doc, label, width=52, size=12, before=4, after=4):
@@ -161,7 +184,8 @@ def programme_pages(doc):
     P(doc, "This section records the mandatory onboarding tasks and the learning "
            "journey published on the Skill Wallet program page for the Google "
            "Cloud Generative AI (Engineering) program. Every link in this section "
-           "was verified and every screenshot was captured from the live page. "
+           "was opened successfully and the screenshots in this section were captured "
+           "from those public pages. "
            "Complete the tasks in the order given before starting the "
            "experiments.", 11.5, align=JUST, after=10)
 
@@ -268,7 +292,14 @@ def experiment(doc, e):
         P(doc, o, 12, align=JUST, after=4)
 
     if e.get("figure"):
-        screenshot_area(doc, e["figure"])
+        real = REAL_FIGURES.get(e["no"])
+        if real and os.path.exists(real[0]):
+            P(doc, "The figure below was produced by running the program given "
+                   "above in this laboratory session.", 11, italic=True,
+              align=JUST, after=4)
+            real_figure(doc, real[0], real[1], width_cm=13.0)
+        else:
+            screenshot_area(doc, e["figure"])
 
     section_head(doc, "OBSERVATION AND ANALYSIS", 13)
     obs = e["observation"]

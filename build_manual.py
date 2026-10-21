@@ -67,22 +67,40 @@ def footer_page_number(section, first_page_blank=True):
             q.text = ""
 
 
-def page_break(doc):
-    """Break to a new page without starting a new section.
-
-    The break paragraph is made 1pt tall on an exact line, because a full-height
-    empty paragraph at the foot of a page can overflow and produce a blank page
-    before the real content.
-    """
-    p = doc.add_paragraph()
-    pf = p.paragraph_format
-    pf.space_before = Pt(0)
-    pf.space_after = Pt(0)
-    pf.line_spacing = Pt(1)
-    r = p.add_run()
-    _style(r, 1)
-    r.add_break(WD_BREAK.PAGE)
+def _page_break_before(p):
+    """Force the paragraph to start a new page via w:pageBreakBefore."""
+    p.paragraph_format.page_break_before = True
     return p
+
+
+def _consume_break(doc, p):
+    """Apply a pending page break to the first paragraph that follows it."""
+    if getattr(doc, "_pending_break", False):
+        _page_break_before(p)
+        doc._pending_break = False
+    return p
+
+
+def _next_paragraph(doc):
+    """The last paragraph added to the document body, or None."""
+    for child in reversed(doc.element.body):
+        if child.tag == qn("w:p"):
+            from docx.text.paragraph import Paragraph
+            return Paragraph(child, doc)
+        if child.tag == qn("w:tbl"):
+            return None
+    return None
+
+
+def page_break(doc):
+    """Break to a new page.
+
+    Instead of emitting a break-only paragraph (which can overflow at a page
+    boundary and produce a blank page), the break is deferred to the next
+    paragraph, which is flagged with ``pageBreakBefore``.
+    """
+    doc._pending_break = True
+    return None
 
 
 def _style(run, size=12, bold=False, italic=False, font=SERIF, color=None):
@@ -179,6 +197,7 @@ def add_page(doc):
 def P(doc, text="", size=12, bold=False, italic=False, align=None,
       before=0, after=6, line=None, font=SERIF):
     p = doc.add_paragraph()
+    _consume_break(doc, p)
     if align is not None:
         p.alignment = align
     no_space(p, before, after, line)
@@ -190,6 +209,7 @@ def P(doc, text="", size=12, bold=False, italic=False, align=None,
 def rich(doc, parts, size=12, align=None, before=0, after=6, line=None):
     """parts: list of (text, bold, italic)."""
     p = doc.add_paragraph()
+    _consume_break(doc, p)
     if align is not None:
         p.alignment = align
     no_space(p, before, after, line)
@@ -203,6 +223,7 @@ def bullets(doc, items, size=12, indent=0.7, after=2, style="List Bullet"):
     out = []
     for it in items:
         p = doc.add_paragraph(style=style)
+        _consume_break(doc, p)
         p.paragraph_format.left_indent = Cm(indent)
         p.paragraph_format.space_after = Pt(after)
         p.paragraph_format.line_spacing = 1.15
@@ -327,6 +348,7 @@ def real_figure(doc, image_path, caption, width_cm=15.0):
     if not os.path.exists(image_path):
         raise FileNotFoundError(image_path)
     p = doc.add_paragraph()
+    _consume_break(doc, p)
     no_space(p, 6, 2)
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.add_run().add_picture(image_path, width=Cm(width_cm))
