@@ -1,1 +1,6 @@
-$ /usr/bin/python3.13 -u gan_mnist.py
+$ /usr/bin/python3.13 exp 02: running gan_mnist.py in /workspace/project/runs/02
+exp 02: exit 0, log /workspace/project/captures/exp02.log
+sG=3.7704
+epoch 04  lossD=0.3078  lossG=4.1573
+epoch 05  lossD=0.4135  lossG=3.4222
+
