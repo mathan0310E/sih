@@ -6,10 +6,11 @@ Output: output/NM_LAB_MANUAL_GenAI.docx
 """
 import os
 import content as C
+import programme as PROG
 from build_manual import (new_doc, page_break, set_border, footer_page_number,
                           P, rich, bullets, numbered, section_head, code_block,
-                          data_table, screenshot_area, _style, no_space,
-                          SERIF, MONO)
+                          data_table, screenshot_area, real_figure,
+                          borderless_table, _style, no_space, SERIF, MONO)
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt, Cm
 
@@ -19,6 +20,7 @@ JUST = WD_ALIGN_PARAGRAPH.JUSTIFY
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 os.makedirs(OUT, exist_ok=True)
 DOCX = os.path.join(OUT, "NM_LAB_MANUAL_GenAI.docx")
+SHOTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "shots")
 
 
 def dotted_line(doc, label, width=52, size=12, before=4, after=4):
@@ -131,7 +133,79 @@ def index_page(doc):
       10, after=4)
 
 
+# ------------------------------------------------------- programme pages
+def programme_pages(doc):
+    """Naan Mudhalvan / Skill Wallet onboarding, before the experiments."""
+    page_break(doc)
+    P(doc, "NAAN MUDHALVAN PROGRAMME \u2014 STUDENT ONBOARDING AND LEARNING "
+           "JOURNEY", 15, bold=True, align=CENTER, after=8)
+    P(doc, "This section records the mandatory onboarding tasks and the learning "
+           "journey published on the Skill Wallet program page for the Google "
+           "Cloud Generative AI (Engineering) program. Every link in this section "
+           "was verified and every screenshot was captured from the live page. "
+           "Complete the tasks in the order given before starting the "
+           "experiments.", 11.5, align=JUST, after=10)
+
+    for t in PROG.TASKS:
+        p = P(doc, "", before=8, after=3)
+        _style(p.add_run(f"Task {t['no']}: {t['title']}"), 12.5, bold=True)
+        p = P(doc, "", before=0, after=4)
+        _style(p.add_run("Provider: "), 11, bold=True)
+        _style(p.add_run(t["provider"]), 11)
+
+        section_head(doc, "STEPS", 12)
+        numbered(doc, t["steps"], 11.5)
+
+        section_head(doc, "LINKS", 12)
+        rows = [[name, url] for name, url in t["links"]]
+        data_table(doc, ["Resource", "URL"], rows,
+                   widths=[5.0, 11.2], size=9.5)
+
+        shot = os.path.join(SHOTS, t["shot"])
+        if os.path.exists(shot):
+            real_figure(doc, shot, t["caption"], width_cm=14.5)
+        if t.get("shot2"):
+            shot2 = os.path.join(SHOTS, t["shot2"])
+            if os.path.exists(shot2):
+                real_figure(doc, shot2,
+                            "Fig. P.1b: Digital Application Fundamentals (STEM) "
+                            "journey page.", width_cm=14.5)
+
+    page_break(doc)
+    P(doc, "LEARNING JOURNEY, CAPSTONE PROJECT AND ASSESSMENT", 14, bold=True,
+      align=CENTER, after=8)
+    for heading, body in PROG.JOURNEY:
+        section_head(doc, heading.upper(), 12)
+        P(doc, body, 11.5, align=JUST, after=6)
+
+    section_head(doc, "VERIFICATION NOTES", 12)
+    numbered(doc, PROG.VERIFICATION_NOTES, 11)
+
+
 # ------------------------------------------------------------- experiment
+def detailed_procedure(doc, steps):
+    """Render the exhaustive step-by-step guide for one experiment."""
+    section_head(doc, "DETAILED STEP-BY-STEP PROCEDURE", 13)
+    P(doc, "Follow the steps in the order given. Each step states the action to "
+           "perform, the exact command or click, what you should observe, and "
+           "what to do if the step fails.",
+      11, italic=True, align=JUST, after=6)
+    for i, s in enumerate(steps, 1):
+        p = P(doc, "", before=8, after=2)
+        _style(p.add_run(f"Step {i}: {s['title']}"), 11.5, bold=True)
+        rich(doc, [("Action: ", True, False), (s["action"], False, False)],
+             11.5, align=JUST, after=3)
+        if s.get("command"):
+            code_block(doc, s["command"])
+        if s.get("observe"):
+            rich(doc, [("What you should see: ", True, False),
+                       (s["observe"], False, False)],
+                 11.5, align=JUST, after=3)
+        if s.get("note"):
+            rich(doc, [("Note: ", True, False), (s["note"], False, False)],
+                 11, align=JUST, after=3)
+
+
 def experiment(doc, e):
     """Render one experiment, starting on a fresh page."""
     page_break(doc)
@@ -153,6 +227,9 @@ def experiment(doc, e):
 
     section_head(doc, "PROCEDURE", 13)
     numbered(doc, e["procedure"], 12)
+
+    if e.get("detailed"):
+        detailed_procedure(doc, e["detailed"])
 
     if e.get("prompts"):
         section_head(doc, "PROMPTS USED", 13)
@@ -253,6 +330,15 @@ def appendices(doc):
     _style(p.add_run("Signature of the Student: ______________________"), 11)
     P(doc, "Date: ______________________", 11, after=4)
 
+    page_break(doc)
+    P(doc, "APPENDIX E \u2014 PROGRAMME LINK INDEX", 14, bold=True, align=CENTER,
+      after=6)
+    P(doc, "Every link below was opened and returned HTTP 200 when this manual "
+           "was prepared. Path titles and activity counts are as published on "
+           "the public path pages.", 11, italic=True, align=JUST, after=8)
+    data_table(doc, PROG.LINK_INDEX[0], PROG.LINK_INDEX[1:],
+               widths=[3.2, 5.6, 7.4], size=8.5)
+
 
 def main():
     doc = new_doc()
@@ -264,6 +350,7 @@ def main():
     certificate(doc)
     page_break(doc)
     index_page(doc)
+    programme_pages(doc)
     for e in C.EXPERIMENTS:
         experiment(doc, e)
     appendices(doc)

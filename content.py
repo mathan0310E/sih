@@ -1752,6 +1752,13 @@ from content2 import E11_15  # noqa: E402
 
 EXPERIMENTS = [E1, E2, E3, E4, E5, E6, E7, E8, E9, E10] + E11_15
 
+# Attach the exhaustive step-by-step guide to every experiment.  The guides live
+# in detailed.py so that the experiment data above stays readable.
+import detailed as _detailed
+
+for _e in EXPERIMENTS:
+    _e["detailed"] = _detailed.D[_e["no"]]
+
 # --------------------------------------------------------------------------
 # Appendices
 # --------------------------------------------------------------------------

@@ -6,6 +6,8 @@ record-book layout: thin page border, Times New Roman body text, bordered
 index table, page numbers in the footer, and a fixed section structure for
 every experiment.
 """
+import os
+
 from docx import Document
 from docx.shared import Pt, Cm, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
@@ -308,3 +310,33 @@ def screenshot_area(doc, caption, height_cm=6.0):
     cap = P(doc, caption, size=10, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER,
             before=2, after=8)
     return tbl, cap
+
+
+def real_figure(doc, image_path, caption, width_cm=15.0):
+    """Place an authentic captured screenshot with a bordered caption."""
+    if not os.path.exists(image_path):
+        raise FileNotFoundError(image_path)
+    p = doc.add_paragraph()
+    no_space(p, 6, 2)
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.add_run().add_picture(image_path, width=Cm(width_cm))
+    cap = P(doc, caption, size=10, italic=True,
+            align=WD_ALIGN_PARAGRAPH.CENTER, before=2, after=8)
+    return cap
+
+
+def borderless_table(doc, rows, widths, size=11, bold_first_col=False):
+    """Two-column layout table with no visible borders (signature blocks)."""
+    tbl = doc.add_table(rows=0, cols=len(widths))
+    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tbl.autofit = False
+    _fixed_layout(tbl)
+    for row in rows:
+        cells = tbl.add_row().cells
+        for i, val in enumerate(row):
+            cells[i].text = ""
+            q = cells[i].paragraphs[0]
+            no_space(q, 6, 6)
+            _style(q.add_run(str(val)), size, bold=bold_first_col and i == 0)
+    _apply_widths(tbl, widths)
+    return tbl

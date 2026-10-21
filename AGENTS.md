@@ -1,61 +1,99 @@
 # Naan Mudhalvan Generative AI Laboratory Record Manual
 
 ## Goal
-Produce a traditional Indian engineering college practical record manual for
+A traditional Indian engineering college practical record manual for
 **SKP Engineering College, Tiruvannamalai - 606 611**, Department of AI & DS,
-course "Naan Mudhalvan - Generative Artificial Intelligence", as an editable
-`.docx` plus a print-ready `.pdf` (A4).
+course "Naan Mudhalvan - Generative Artificial Intelligence", delivered as an
+editable `.docx` and a print-ready A4 `.pdf` (currently 107 pages).
 
-## Layout reference
-`NM LAB MANUAL CS.pdf` (98 pages, Letter, Word 2019) is the formatting
-reference. It was **not** attached to the conversation; it was obtained from
-`https://github.com/mathan0310E/sih` (branch `main`, repo root). Its front
-matter is: cover (college name / address / DEPARTMENT OF / programme /
-course code / REGULATION / dot-leader Name, Register Number, Department,
-Year-Semester, Subject) then a CERTIFICATE page with the same dot-leader
-fields plus "Certified that this is the bonafide record ..." and
-Staff-In-Charge / Head of the Department / Internal Examiner / External
-Examiner signature blocks, then an INDEX table, then `Exp. no: NN  <title>` +
-`Date:` on every experiment page, ending with a `CONCLUSION` page.
+## Reference documents
+1. `NM LAB MANUAL CS.pdf` (98 pages, Letter, Word 2019) is the layout
+   reference. It was **not** attached to the conversation; it was recovered from
+   `https://github.com/mathan0310E/sih` (branch `main`, repo root). Its front
+   matter is cover (college / address / DEPARTMENT OF / programme / course code /
+   REGULATION / dot-leader Name, Register Number, Department, Year-Semester,
+   Subject), a CERTIFICATE page with the same dot-leader fields plus
+   "Certified that this is the bonafide record ..." and four signature blocks, a
+   bordered INDEX table, then `Exp. no: NN  <title>` + `Date:` on every
+   experiment page, and a final `CONCLUSION` page.
+2. The GenAI syllabus arrived as **two screenshots**, not text. They are stored
+   as `ref/img0.jpg` and `ref/img1.jpg`; read them with OCR, since the model has
+   no vision. img0 = topics 1-8, img1 = topics 9-15. They are topic
+   *descriptions*, so the experiment list in `content.py` is the transcription of
+   those 15 topics in order.
+3. The Skill Wallet program page (pasted as text) supplies the onboarding tasks
+   and learning journey now recorded in `programme.py`.
 
 ## Build
 ```
-pip install python-docx
-python3 assemble.py                     # -> output/NM_LAB_MANUAL_GenAI.docx
+pip install python-docx pillow pymupdf
+python3 assemble.py                       # -> output/NM_LAB_MANUAL_GenAI.docx
 export LD_LIBRARY_PATH=/usr/lib/libreoffice/program:$LD_LIBRARY_PATH
 soffice --headless --convert-to pdf --outdir output output/NM_LAB_MANUAL_GenAI.docx
 ```
-LibreOffice **requires** `LD_LIBRARY_PATH=/usr/lib/libreoffice/program` on this
-image, otherwise `libreglo.so` is not found.
+LibreOffice **requires** `LD_LIBRARY_PATH=/usr/lib/libreoffice/program` here,
+otherwise `libreglo.so` is not found.
 
 ## Source files
-- `build_manual.py` - docx primitives (A4 page border, footer PAGE field,
-  fixed-layout bordered tables, shaded monospace code blocks, screenshot boxes).
+- `build_manual.py` - docx primitives: A4 page border, footer PAGE field,
+  fixed-layout bordered tables, shaded monospace code blocks, screenshot
+  placeholder boxes, `real_figure()` for authentic captures,
+  `borderless_table()` for signature blocks.
 - `content.py` - college details, experiments 1-10, appendices, `EXPERIMENTS`.
 - `content2.py` - experiments 11-15 (`E11_15`).
-- `assemble.py` - page assembly (cover, certificate, index, experiments,
-  appendices). Single Word section + page breaks so page numbers are continuous.
+- `detailed.py` - `D["01"] ... D["15"]`, the exhaustive step-by-step guides
+  (142 steps total). Each step is a dict with `title`, `action`, optional
+  `command` lines, `observe` and `note`.
+- `programme.py` - the verified Skill Wallet onboarding tasks, learning journey
+  text and the link index (`TASKS`, `JOURNEY`, `LINK_INDEX`,
+  `VERIFICATION_NOTES`).
+- `assemble.py` - page assembly. One Word section plus page breaks, so footer
+  page numbers run continuously.
+- `shots/` - authentic screenshots captured with headless Chromium from the
+  live program pages.
 
 ## Conventions and constraints
-- Body font Times New Roman 12 pt; code Courier New 9 pt. Liberation Serif /
-  Liberation Mono substitute at PDF conversion time (metric compatible).
-- Text width is 16.2 cm; **every** table `widths` list must sum to 16.2.
-- Longest code line is 80 characters so code blocks never wrap.
-- Screenshots are always the placeholder "Paste actual experiment screenshot
-  here."; outputs are labelled "Expected Output" and every experiment states
-  that results were not produced by an actual run.
-- Experiment list/order comes from the supplied syllabus (two attached images,
-  15 topics) and must not be renamed, reordered or extended.
-- API facts were checked against https://ai.google.dev/gemini-api/docs and
-  https://googleapis.github.io/python-genai/ (`client.chats.create`,
-  `chat.send_message`, `automatic_function_calling_history`,
-  `types.AutomaticFunctionCallingConfig(maximum_remote_calls=...)`,
-  `types.GenerateContentConfig(system_instruction=..., temperature=...)`).
+- Body Times New Roman 12 pt, code Courier New 9 pt. Liberation Serif / Mono
+  substitute at PDF conversion time and are metric compatible.
+- Text width is 16.2 cm. **Every** table `widths` list must sum to 16.2.
+- No line, in code blocks or command blocks, may exceed 80 characters.
+- Experiment headings use an em dash: `Exp. no: 07 \u2014 <title>`.
+- Screenshots for the 15 experiments are always the placeholder text
+  "Paste actual experiment screenshot here."; outputs are headed **Expected
+  Output** and each experiment states the result was not produced by an actual
+  run. Never fabricate a screenshot or a console transcript.
+- The programme section may use authentic screenshots (`real_figure`), but the
+  captions say they were captured before sign-in.
+- Experiments must not be renamed, reordered or extended beyond the 15 supplied
+  topics.
+
+## Verified external facts
+Checked against official sources, not memory:
+- `https://ai.google.dev/gemini-api/docs` and
+  `https://googleapis.github.io/python-genai/`: `genai.Client`,
+  `client.models.generate_content`,
+  `types.GenerateContentConfig(system_instruction=..., temperature=...,
+  max_output_tokens=...)`, `client.chats.create`, `chat.send_message`,
+  `AutomaticFunctionCallingConfig(maximum_remote_calls=...)`,
+  `response.automatic_function_calling_history`. `gemini-2.0-flash` is listed.
+- Learning path titles and activity counts, read from the public path pages:
+  `/paths/118` "Beginner: Introduction to Generative AI" (4 activities),
+  `/paths/1951` "Generative AI Leader Certification" (5 activities, GAIL),
+  `/paths/183` "Advanced: Generative AI for Developers" (12 activities).
+- All 19 programme links return HTTP 200.
+- Known discrepancy recorded in `programme.py`: the program page reuses the
+  playlist `PLHzNxijLRang` (titled "Beginner: Introduction to Generative AI")
+  for both the Beginner Lab and the GAIL path. This is flagged to the student,
+  not silently propagated.
+- Learning path activity *names* are behind a sign-in wall, so they are not
+  quoted anywhere.
 
 ## QA loop used
 1. `python3 assemble.py`
 2. LibreOffice -> PDF
-3. `pdftotext -layout` then assert: 15 x each section heading, no blank pages,
-   `Page N` footer on every page but the cover, 15 figure captions.
-4. `pdftotext -bbox` then assert no word leaves the text frame (footers are the
-   only exception, by design).
+3. `pdftotext -layout`, then assert: each required section heading appears 15
+   times, 142 `Step N:` headings, 15 `Exp. no:`, no blank pages, a `Page N`
+   footer on every page except the cover, 15 figure placeholders.
+4. `pdftotext -bbox`, then assert no word leaves the text frame. Footer page
+   numbers are the only expected exception.
+5. `pdfimages -list` to confirm the authentic screenshots really embedded.
