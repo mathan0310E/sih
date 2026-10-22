@@ -72,7 +72,7 @@ G, D = Gen().to(DEV), Disc().to(DEV)
 oG = optim.Adam(G.parameters(), lr=2e-4, betas=(0.5, 0.999))
 oD = optim.Adam(D.parameters(), lr=2e-4, betas=(0.5, 0.999))
 bce = nn.BCELoss()
-for ep in range(3):    # lab-scale: fewer epochs on CPU
+for ep in range(20):
     for x, _ in trl:
         x = x.to(DEV); n = x.size(0)
         one = torch.ones(n, 1, device=DEV)
