@@ -5,6 +5,7 @@ Run:  python3 assemble.py
 Output: output/NM_LAB_MANUAL_GenAI.docx
 """
 import os
+import re
 import content as C
 import programme as PROG
 from build_manual import (new_doc, page_break, set_border, footer_page_number,
@@ -56,6 +57,40 @@ REAL_FIGURES = {
            "Fig. 15.1: Monitoring report showing daily quality and latency "
            "(captured from this program's run)."),
 }
+
+
+# Console output is read verbatim from the captured run logs at build time, so
+# the manual can never quote a line the program did not actually print.  Only
+# experiments whose run finished cleanly are listed.
+CAPTURED_RUNS = ("04", "05", "06", "12", "13", "14", "15")
+
+_ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+_PROGRESS = re.compile(r"^\s*(\d+%|\|[\s#]*\||.*[BMK]B/s\]|.*examples/s\]"
+                       r"|.*it/s\]|.*s/it\])")
+
+
+def captured_output(no):
+    """Return the meaningful lines a run really printed, or [] if unavailable."""
+    if no not in CAPTURED_RUNS:
+        return []
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "captures", "exp%s.log" % no)
+    if not os.path.exists(path):
+        return []
+    out = []
+    with open(path, "r", errors="replace") as f:
+        for raw in f:
+            ln = _ANSI.sub("", raw).rstrip()
+            if not ln.strip():
+                continue
+            if _PROGRESS.match(ln):
+                continue
+            if ln.startswith("Warning: You are sending unauthenticated"):
+                continue
+            if ln.startswith("$ /usr/bin/python"):
+                continue
+            out.append(ln.rstrip())
+    return out
 
 
 def dotted_line(doc, label, width=52, size=12, before=4, after=4):
@@ -296,6 +331,18 @@ def experiment(doc, e):
     section_head(doc, "EXPECTED OUTPUT", 13)
     for o in e["output"]:
         P(doc, o, 12, align=JUST, after=4)
+
+    run_lines = captured_output(e["no"])
+    if run_lines:
+        section_head(doc, "CAPTURED CONSOLE OUTPUT (REAL RUN)", 13)
+        P(doc, "The lines below are copied verbatim from the log of the run "
+               "performed in this laboratory session. They are shown so that "
+               "the observed output can be compared with the expected output "
+               "above.", 11, italic=True, align=JUST, after=4)
+        code_block(doc, run_lines)
+        P(doc, "Fig. %s: Console output captured from the actual run of the "
+               "program." % e["no"].lstrip("0"), 10, italic=True,
+          align=CENTER, before=2, after=8)
 
     if e.get("figure"):
         real = REAL_FIGURES.get(e["no"])
